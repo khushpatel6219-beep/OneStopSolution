@@ -16,6 +16,7 @@ import { renderReports, attachReportExportListeners } from './components/reports
 import { renderAnalytics, initAnalyticsCharts } from './components/analytics.js';
 import { renderSettings, attachSettingsListeners } from './components/settings.js';
 import { renderSearchModal, performGlobalSearch } from './components/searchModal.js';
+import { renderLoginScreen } from './components/login.js';
 
 class AppController {
   constructor() {
@@ -464,6 +465,32 @@ class AppController {
     const mainEl = document.getElementById('main-view');
     const searchModalEl = document.getElementById('search-modal-container');
 
+    // Authentication Guard Check (Username: OneStopSolution, Password: 98796 14102)
+    if (!store.isAuthenticated()) {
+      const loginOverlay = document.getElementById('global-modal-container') || mainEl;
+      if (loginOverlay) {
+        loginOverlay.innerHTML = renderLoginScreen();
+        const loginForm = document.getElementById('form-login-auth');
+        if (loginForm) {
+          loginForm.onsubmit = (e) => {
+            e.preventDefault();
+            const user = document.getElementById('login-username').value;
+            const pass = document.getElementById('login-password').value;
+            if (store.login(user, pass)) {
+              const modalCont = document.getElementById('global-modal-container');
+              if (modalCont) modalCont.innerHTML = '';
+              this.render();
+            } else {
+              const errBox = document.getElementById('login-error-msg');
+              if (errBox) errBox.classList.remove('hidden');
+            }
+          };
+        }
+        if (window.lucide) window.lucide.createIcons();
+        return;
+      }
+    }
+
     if (sidebarEl) sidebarEl.innerHTML = renderSidebar(this.currentRoute);
     if (navbarEl) navbarEl.innerHTML = renderNavbar(this.currentRoute);
     if (searchModalEl && !document.getElementById('search-modal')) {
@@ -499,10 +526,6 @@ class AppController {
         case 'payments':
           mainEl.innerHTML = renderPaymentsModule(this.paymentsSubTab);
           break;
-        case 'reports':
-          mainEl.innerHTML = renderReports();
-          attachReportExportListeners(this);
-          break;
         case 'analytics':
           mainEl.innerHTML = renderAnalytics();
           setTimeout(() => initAnalyticsCharts(), 50);
@@ -525,6 +548,14 @@ class AppController {
   }
 
   attachEventListeners() {
+    const btnLogout = document.getElementById('btn-logout-user');
+    if (btnLogout) {
+      btnLogout.onclick = () => {
+        store.logout();
+        this.render();
+      };
+    }
+
     const searchTrigger = document.getElementById('trigger-search-modal');
     if (searchTrigger) searchTrigger.onclick = () => this.openSearchModal();
 
@@ -1169,6 +1200,7 @@ class AppController {
       paymentEngine.runAutomaticReminderCheck();
       this.closeGlobalModal();
       this.showToast(`Motor deal created for ${clientObj.name} & Auto Reminders linked!`);
+      this.render();
     };
   }
 
@@ -1551,6 +1583,7 @@ class AppController {
       });
       this.closeGlobalModal();
       this.showToast('Life Term Policy created!');
+      this.render();
     };
   }
 
@@ -1806,44 +1839,160 @@ class AppController {
     };
   }
 
-  // Add Lead Modal
+  // Add Lead Modal (Full Comprehensive Form matching Edit Client)
   openAddClientModal() {
     const container = document.getElementById('global-modal-container');
     if (!container) return;
 
     container.innerHTML = `
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-        <div class="w-full max-w-xl zoho-card p-6 rounded-xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="w-full max-w-2xl zoho-card p-6 rounded-2xl space-y-4 max-h-[92vh] overflow-y-auto custom-scrollbar border border-amber-500/30">
           <div class="flex items-center justify-between border-b border-[#1E293B] pb-3">
-            <h3 class="font-extrabold text-white text-base">Add New CRM Lead / Client</h3>
-            <button id="btn-close-modal" class="p-1 rounded-lg text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                <i data-lucide="user-plus" class="w-4.5 h-4.5"></i>
+              </div>
+              <h3 class="font-extrabold text-white text-base">Add New CRM Lead / Client</h3>
+            </div>
+            <button id="btn-close-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
           </div>
 
           <form id="form-add-client" class="space-y-4 text-xs">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-slate-400 font-semibold mb-1">Full Name *</label>
-                <input type="text" name="name" required placeholder="e.g. Khush Patel" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-[#1E293B] text-white focus:border-amber-400 focus:outline-none" />
+            <!-- Section 1: Basic Identity -->
+            <div class="p-3.5 rounded-xl bg-slate-900/60 border border-[#1E293B] space-y-3">
+              <h4 class="font-bold text-amber-400 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i> Personal Profile Information
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Full Name *</label>
+                  <input type="text" name="name" required placeholder="e.g. Khush Patel" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Mobile Phone Number *</label>
+                  <input type="tel" name="phone" required placeholder="+91 98765 43210" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-amber-400 font-mono focus:border-amber-400 focus:outline-none" />
+                </div>
               </div>
-              <div>
-                <label class="block text-slate-400 font-semibold mb-1">Mobile Number *</label>
-                <input type="text" name="phone" required placeholder="+91 98000 00000" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-[#1E293B] text-white focus:border-amber-400 focus:outline-none" />
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Email Address</label>
+                  <input type="email" name="email" placeholder="client@example.com" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Date of Birth</label>
+                  <input type="date" name="dob" style="color-scheme: dark;" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none cursor-pointer" />
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Occupation / Profession</label>
+                  <input type="text" name="occupation" placeholder="e.g. Business / Service" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none" />
+                </div>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-slate-400 font-semibold mb-1">Email Address</label>
-                <input type="email" name="email" placeholder="client@example.com" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-[#1E293B] text-white focus:border-amber-400 focus:outline-none" />
-              </div>
-              <div>
-                <label class="block text-slate-400 font-semibold mb-1">PAN Number *</label>
-                <input type="text" name="pan" required placeholder="ABCDE1234F" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-[#1E293B] text-white focus:border-amber-400 focus:outline-none font-mono uppercase" />
+            <!-- Section 2: Statutory Compliance IDs -->
+            <div class="p-3.5 rounded-xl bg-slate-900/60 border border-[#1E293B] space-y-3">
+              <h4 class="font-bold text-cyan-400 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="file-check" class="w-3.5 h-3.5"></i> Identification & Compliance Numbers
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">PAN Card Number *</label>
+                  <input type="text" name="pan" required placeholder="ABCDE1234F" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono uppercase focus:border-amber-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Aadhaar Card Number</label>
+                  <input type="text" name="aadhaar" placeholder="1234 5678 9012" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono focus:border-amber-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Passport Number</label>
+                  <input type="text" name="passport" placeholder="Z1234567" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono uppercase focus:border-amber-400 focus:outline-none" />
+                </div>
               </div>
             </div>
 
-            <button type="submit" class="w-full py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold transition">
-              Save Client Lead
+            <!-- Section 3: Address -->
+            <div class="p-3.5 rounded-xl bg-slate-900/60 border border-[#1E293B] space-y-3">
+              <h4 class="font-bold text-emerald-400 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Residence & Location
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">City</label>
+                  <input type="text" name="city" placeholder="Mumbai / Surat / Ahmedabad" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">State</label>
+                  <input type="text" name="state" placeholder="Gujarat / Maharashtra" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 4: Subscribed Portfolio Services -->
+            <div class="p-3.5 rounded-xl bg-slate-900/60 border border-[#1E293B] space-y-2">
+              <h4 class="font-bold text-amber-400 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="layers" class="w-3.5 h-3.5"></i> Subscribed Insurance Services
+              </h4>
+              <div class="flex flex-wrap gap-4 text-xs font-semibold text-slate-300 pt-1">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="service_motor" value="Motor Insurance" checked class="w-4 h-4 rounded accent-amber-500" />
+                  <span>🚗 Motor Insurance</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="service_health" value="Health Insurance" checked class="w-4 h-4 rounded accent-emerald-500" />
+                  <span>🏥 Health Insurance</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="service_life" value="Life Insurance" checked class="w-4 h-4 rounded accent-cyan-500" />
+                  <span>🛡️ Life Insurance</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Section 5: Family Details -->
+            <div class="p-3.5 rounded-xl bg-slate-900/60 border border-[#1E293B] space-y-3">
+              <h4 class="font-bold text-rose-400 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="heart" class="w-3.5 h-3.5"></i> Family Details
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Spouse Name</label>
+                  <input type="text" name="spouse" placeholder="Spouse Full Name" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Children (comma separated)</label>
+                  <input type="text" name="children" placeholder="Child 1, Child 2" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Nominee Name</label>
+                  <input type="text" name="nominee" placeholder="Nominee Name" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 6: Emergency Contact Details -->
+            <div class="p-3.5 rounded-xl bg-slate-900/60 border border-[#1E293B] space-y-3">
+              <h4 class="font-bold text-cyan-400 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Emergency Contact Information
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Emergency Contact Name</label>
+                  <input type="text" name="emergency_name" placeholder="Full Name" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Relation</label>
+                  <input type="text" name="emergency_relation" placeholder="Brother / Parent / Friend" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white focus:border-amber-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-bold mb-1">Phone Number</label>
+                  <input type="text" name="emergency_phone" placeholder="+91 98000 00000" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-cyan-400 font-mono focus:border-amber-400 focus:outline-none" />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold transition text-sm shadow-lg shadow-amber-500/20">
+              Save New Client & Statutory Records
             </button>
           </form>
         </div>
@@ -1857,21 +2006,42 @@ class AppController {
       const form = e.target;
       const formData = new FormData(form);
 
+      const services = [];
+      if (formData.get('service_motor')) services.push('Motor Insurance');
+      if (formData.get('service_health')) services.push('Health Insurance');
+      if (formData.get('service_life')) services.push('Life Insurance');
+      if (services.length === 0) services.push('General CRM');
+
+      const childrenStr = formData.get('children');
+      const childrenArr = childrenStr ? childrenStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+
       const newClient = store.addClient({
-        name: formData.get('name'),
-        phone: formData.get('phone'),
-        email: formData.get('email') || 'client@staros.com',
-        pan: formData.get('pan').toUpperCase(),
-        aadhaar: '5566 7788 9900',
-        services: ['Motor Insurance', 'Health Insurance'],
-        tags: ['General'],
-        occupation: 'Business Owner',
-        city: 'Mumbai',
-        state: 'Maharashtra',
-        dob: '1988-05-15'
+        name: (formData.get('name') || '').trim(),
+        phone: (formData.get('phone') || '').trim(),
+        email: (formData.get('email') || '').trim(),
+        dob: formData.get('dob') || '',
+        occupation: (formData.get('occupation') || '').trim(),
+        city: (formData.get('city') || '').trim(),
+        state: (formData.get('state') || '').trim(),
+        pan: (formData.get('pan') || '').trim().toUpperCase(),
+        aadhaar: (formData.get('aadhaar') || '').trim(),
+        passport: (formData.get('passport') || '').trim().toUpperCase(),
+        services: services,
+        tags: services,
+        family: {
+          spouse: (formData.get('spouse') || '').trim(),
+          children: childrenArr,
+          nominee: (formData.get('nominee') || '').trim()
+        },
+        emergencyContact: {
+          name: (formData.get('emergency_name') || '').trim(),
+          relation: (formData.get('emergency_relation') || '').trim(),
+          phone: (formData.get('emergency_phone') || '').trim()
+        }
       });
+
       this.closeGlobalModal();
-      this.showToast(`Lead ${newClient.name} created!`);
+      this.showToast(`New client ${newClient.name} added successfully!`);
       this.selectClient(newClient.id);
     };
   }
@@ -2242,7 +2412,7 @@ class AppController {
   }
 
 
-  // Upload Client Image Modal
+  // Upload Client Image Modal (With Photo Dropdown: PAN, Aadhaar, Car, Passport)
   openUploadClientImageModal(clientId) {
     const db = store.get();
     const client = db.clients.find(c => c.id === clientId);
@@ -2261,8 +2431,20 @@ class AppController {
 
           <form id="form-upload-client-img" class="space-y-4 text-xs">
             <div>
-              <label class="block text-slate-400 font-semibold mb-1">Title / Description *</label>
-              <input type="text" name="title" required placeholder="PAN Scan / Aadhaar Card / Vehicle Photo" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-[#1E293B] text-white focus:border-amber-400 focus:outline-none" />
+              <label class="block text-slate-400 font-semibold mb-1">Select Photo / Document Type *</label>
+              <select name="photoCategory" required class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-[#1E293B] text-white focus:border-amber-400 focus:outline-none font-semibold">
+                <option value="PAN Card Photo">🪪 PAN Card Photo</option>
+                <option value="Aadhaar Card Photo">🆔 Aadhaar Card Photo</option>
+                <option value="Car / Vehicle Photo">🚗 Car / Vehicle Photo</option>
+                <option value="Passport Photo">✈️ Passport Photo</option>
+                <option value="Vehicle RC Book Photo">📋 Vehicle RC Book Photo</option>
+                <option value="Other Client Photo">📷 Other Client Photo</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Title / Description</label>
+              <input type="text" name="title" placeholder="e.g. Front Scan / Front Photo" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-[#1E293B] text-white focus:border-amber-400 focus:outline-none" />
             </div>
 
             <div id="photo-dropzone" class="p-6 rounded-xl border-2 border-dashed border-slate-700 text-center bg-slate-900/40 hover:border-amber-400 transition cursor-pointer">
@@ -2306,17 +2488,20 @@ class AppController {
         return;
       }
 
+      const cat = formData.get('photoCategory');
+      const customTitle = formData.get('title') ? formData.get('title').trim() : cat;
+
       const reader = new FileReader();
       reader.onload = (event) => {
         const dataUrl = event.target.result;
         store.addClientImage(clientId, {
           id: `img-${Date.now()}`,
-          title: formData.get('title'),
-          type: 'Client Photo',
+          title: customTitle,
+          type: cat,
           url: dataUrl
         });
         this.closeGlobalModal();
-        this.showToast('📸 Photo uploaded and added to client gallery!');
+        this.showToast(`📸 ${cat} uploaded and added to client profile!`);
         this.selectClient(clientId);
       };
       reader.readAsDataURL(file);
@@ -2352,6 +2537,7 @@ class AppController {
     document.getElementById('btn-close-modal').onclick = () => this.closeGlobalModal();
   }
 
+  // Upload Document Vault Modal (With Type Dropdown & Base64 Persistence)
   openUploadDocModal() {
     const container = document.getElementById('global-modal-container');
     if (!container) return;
@@ -2361,26 +2547,40 @@ class AppController {
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
         <div class="w-full max-w-lg zoho-card p-6 rounded-xl space-y-4">
           <div class="flex items-center justify-between border-b border-[#1E293B] pb-3">
-            <h3 class="font-extrabold text-white text-base">Upload Document</h3>
+            <h3 class="font-extrabold text-white text-base">Upload Document to Vault</h3>
             <button id="btn-close-modal" class="p-1 rounded-lg text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
           </div>
 
           <form id="form-upload-doc" class="space-y-4 text-xs">
             <div>
-              <label class="block text-slate-400 font-semibold mb-1">Select Client</label>
+              <label class="block text-slate-400 font-semibold mb-1">Select Client *</label>
               <select name="clientId" required class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-[#1E293B] text-white focus:border-amber-400 focus:outline-none">
-                ${db.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                ${db.clients.map(c => `<option value="${c.id}">${c.name} (${c.phone})</option>`).join('')}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Document Category / Type *</label>
+              <select name="documentType" required class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-[#1E293B] text-white focus:border-amber-400 focus:outline-none font-bold">
+                <option value="PAN Card">🪪 PAN Card Document</option>
+                <option value="Aadhaar Card">🆔 Aadhaar Card Document</option>
+                <option value="Car / Vehicle Photo">🚗 Car / Vehicle Photo</option>
+                <option value="Passport">✈️ Passport Document</option>
+                <option value="Vehicle RC Book">📋 Vehicle RC Book</option>
+                <option value="Medical Reports">🏥 Medical / Health Reports</option>
+                <option value="Other Compliance File">📁 Other Compliance File</option>
               </select>
             </div>
 
             <div id="file-dropzone" class="p-6 rounded-xl border-2 border-dashed border-slate-700 text-center bg-slate-900/30 hover:border-amber-400 transition cursor-pointer">
-              <input type="file" id="vault-file-picker" class="hidden" accept=".pdf,.png,.jpg,.jpeg" />
+              <input type="file" id="vault-file-picker" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.webp" required />
               <i data-lucide="upload-cloud" class="w-8 h-8 text-amber-400 mx-auto mb-2"></i>
-              <p id="file-picker-label" class="text-xs text-white font-bold">Click to select document file</p>
+              <p id="file-picker-label" class="text-xs text-white font-bold">Click to select file from your computer / phone</p>
+              <p class="text-[10px] text-slate-400 mt-1">Supports PDF, JPG, PNG, WEBP files</p>
             </div>
 
-            <button type="submit" class="w-full py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold transition">
-              Upload Document
+            <button type="submit" class="w-full py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold transition shadow-lg shadow-amber-500/20">
+              Save Document to Vault
             </button>
           </form>
         </div>
@@ -2404,18 +2604,35 @@ class AppController {
       e.preventDefault();
       const formData = new FormData(e.target);
       const clientObj = db.clients.find(c => c.id === formData.get('clientId'));
+      const docType = formData.get('documentType');
+      const file = picker && picker.files.length > 0 ? picker.files[0] : null;
 
-      store.addDocument({
-        clientId: formData.get('clientId'),
-        clientName: clientObj ? clientObj.name : 'Client',
-        documentType: 'Identification',
-        fileName: picker && picker.files.length > 0 ? picker.files[0].name : 'Document.pdf',
-        fileCategory: 'Identification',
-        fileSize: '1.4 MB',
-        fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
-      });
-      this.closeGlobalModal();
-      this.showToast('Document uploaded to Vault!');
+      if (!file) {
+        alert('Please select a file to upload.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+
+        store.addDocument({
+          clientId: formData.get('clientId'),
+          clientName: clientObj ? clientObj.name : 'Client',
+          documentType: docType,
+          fileName: `${docType} - ${clientObj ? clientObj.name : 'File'} (${file.name})`,
+          fileCategory: docType.includes('PAN') || docType.includes('Aadhaar') || docType.includes('Passport') ? 'Identification' : docType.includes('Car') || docType.includes('RC') ? 'Vehicle RC' : docType.includes('Medical') ? 'Medical Reports' : 'Identification',
+          fileSize: `${sizeMb} MB`,
+          fileUrl: dataUrl,
+          fileDataUrl: dataUrl
+        });
+
+        this.closeGlobalModal();
+        this.showToast(`✅ ${docType} saved to Document Vault!`);
+        this.render();
+      };
+      reader.readAsDataURL(file);
     };
   }
 

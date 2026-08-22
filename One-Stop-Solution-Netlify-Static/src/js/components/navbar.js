@@ -69,11 +69,11 @@ export function renderNavbar(activeRoute = 'dashboard') {
           <span class="hidden sm:inline">${voiceAssistant.isListening ? 'AI Listening...' : voiceAssistant.isSpeaking ? 'AI Speaking...' : 'AI Assistant'}</span>
         </button>
 
-        <!-- Clear Demo Data Button -->
-        <button id="btn-clear-demo-data" title="Clear sample demo data & start fresh firm entries"
+        <!-- Logout Button -->
+        <button id="btn-logout-user" title="Sign Out of One Stop Solution"
                 class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 text-xs font-bold transition">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          <span class="hidden xl:inline">Clear Demo Data</span>
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span class="hidden xl:inline">Logout</span>
         </button>
 
         <!-- Recycle Bin Button -->

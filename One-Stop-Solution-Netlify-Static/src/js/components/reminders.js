@@ -15,10 +15,6 @@ export function renderReminders() {
           <h2 class="text-xl font-extrabold text-white">Automated Renewal & Reminder Center</h2>
           <p class="text-xs text-slate-400">Automated policy renewal triggers (60d, 30d, 15d, 7d, 3d, Today) & resolved client histories</p>
         </div>
-        <button id="btn-open-add-reminder-modal" class="px-4 py-2 rounded-lg bg-zoho-red hover:bg-red-700 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-zoho-red/20 transition">
-          <i data-lucide="bell-plus" class="w-4 h-4"></i>
-          <span>Create Custom Reminder</span>
-        </button>
       </div>
 
       <!-- Pending Reminders Section -->

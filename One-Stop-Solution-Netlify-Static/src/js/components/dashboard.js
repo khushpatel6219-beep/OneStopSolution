@@ -145,23 +145,7 @@ export function renderDashboard() {
           </div>
         </a>
 
-        <!-- 5. Monthly Revenue Card -->
-        <a href="#analytics" class="zoho-card p-5 rounded-xl zoho-card-hover flex flex-col justify-between block cursor-pointer group">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group-hover:text-emerald-500 transition">Monthly Revenue</span>
-            <div class="w-9 h-9 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-slate-950 transition">
-              <i data-lucide="indian-rupee" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <div class="mt-4">
-            <h3 class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">${revDisplay}</h3>
-            <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1 flex items-center gap-1">
-              <i data-lucide="trending-up" class="w-3 h-3"></i> Real-time Net Revenue (15%)
-            </p>
-          </div>
-        </a>
-
-        <!-- 6. Monthly Premium Collection Card -->
+        <!-- 4. Premium Collection Card -->
         <a href="#payments" class="zoho-card p-5 rounded-xl zoho-card-hover flex flex-col justify-between block cursor-pointer group">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider group-hover:text-cyan-500 transition">Premium Collected</span>

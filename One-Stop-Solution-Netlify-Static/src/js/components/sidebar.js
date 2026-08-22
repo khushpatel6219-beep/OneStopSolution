@@ -13,7 +13,6 @@ export function renderSidebar(activeRoute = 'dashboard') {
     { id: 'calendar', label: 'Schedule Calendar', icon: 'calendar' },
     { id: 'vault', label: 'Document Vault', icon: 'folder-lock' },
     { id: 'payments', label: 'Premium Payments', icon: 'receipt' },
-    { id: 'reports', label: 'Business Reports', icon: 'file-text' },
     { id: 'analytics', label: 'Sales Analytics', icon: 'line-chart' },
     { id: 'settings', label: 'Settings', icon: 'settings' }
   ];

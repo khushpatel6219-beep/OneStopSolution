@@ -112,8 +112,32 @@ class StateStore {
     };
   }
 
+  isAuthenticated() {
+    if (typeof localStorage === 'undefined') return true;
+    return localStorage.getItem('onestop_auth_logged_in') === 'true';
+  }
 
+  login(username, password) {
+    const cleanUser = String(username || '').trim();
+    const cleanPass = String(password || '').trim().replace(/\s+/g, '');
+    if (cleanUser === 'OneStopSolution' && (cleanPass === '9879614102' || cleanPass === '98796 14102')) {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('onestop_auth_logged_in', 'true');
+        localStorage.setItem('onestop_auth_user', cleanUser);
+      }
+      this.notify();
+      return true;
+    }
+    return false;
+  }
 
+  logout() {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('onestop_auth_logged_in');
+      localStorage.removeItem('onestop_auth_user');
+    }
+    this.notify();
+  }
 
   clearAllDemoData() {
     this.data = {
@@ -805,11 +829,13 @@ class StateStore {
       id: `doc-${Date.now().toString().slice(-4)}`,
       uploadDate: new Date().toISOString().split('T')[0],
       status: 'Verified',
+      fileUrl: doc.fileUrl || '',
+      fileDataUrl: doc.fileDataUrl || doc.fileUrl || '',
       ...doc
     };
     this.set(state => ({
       ...state,
-      documents: [newDoc, ...state.documents]
+      documents: [newDoc, ...(state.documents || [])]
     }));
     return newDoc;
   }

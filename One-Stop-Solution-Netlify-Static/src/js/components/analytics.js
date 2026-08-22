@@ -22,17 +22,11 @@ export function renderAnalytics() {
       </div>
 
       <!-- Top KPI Metrics -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="zoho-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
           <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Gross Premium</span>
           <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">₹${totalGrossPremium.toLocaleString('en-IN')}</h3>
           <p class="text-xs text-emerald-500 font-semibold mt-1">Across ${totalPolicies} active policies</p>
-        </div>
-
-        <div class="zoho-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
-          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Net Business Commission</span>
-          <h3 class="text-2xl font-extrabold text-emerald-500 mt-2">₹${netCommissionRevenue.toLocaleString('en-IN')}</h3>
-          <p class="text-xs text-emerald-500 font-semibold mt-1">15% average commission yield</p>
         </div>
 
         <div class="zoho-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
