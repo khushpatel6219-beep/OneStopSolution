@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>One Stop Solution - Premium Business Operating System</title>
+  <meta name="description" content="One Stop Solution is an all-in-one Premium Business Management System for insurance agents and financial advisors." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            zoho: {
+              red: '#E42528',
+              teal: '#00A389',
+              blue: '#226CC5',
+              dark: '#141A26',
+              sidebar: '#181E2B',
+              card: '#1C2333',
+              border: '#273145',
+              hover: '#222B3E',
+              amber: '#F5A623',
+              purple: '#8E44AD'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- StarOS Custom CSS -->
+  <link rel="stylesheet" href="./src/css/styles.css" />
+  <style>
+    :root {
+      --primary-gold: #C9A227;
+      --bg-dark: #0B0B0F;
+      --card-dark: #16181D;
+      --border-dark: #1E293B;
+    }
+    html.dark body, html.dark #app, html.dark #main-view {
+      background-color: #0B0B0F !important;
+      color: #F8FAFC !important;
+    }
+    html.light body, html.light #app, html.light #main-view {
+      background-color: #F6F7FB !important;
+      color: #111827 !important;
+    }
+    html.light .zoho-card {
+      background-color: #FFFFFF !important;
+      border: 1px solid #E5E7EB !important;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+    }
+    html.dark .zoho-card {
+      background-color: #16181D !important;
+      border: 1px solid #1E293B !important;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5) !important;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(11, 11, 15, 0.6); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(30, 41, 59, 0.9); border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C9A227; }
+  </style>
+
+</head>
+<body class="bg-[#F6F7FB] text-[#111827] dark:bg-[#0B0B0F] dark:text-[#F8FAFC] antialiased selection:bg-amber-500 selection:text-slate-950 font-sans min-h-screen overflow-x-hidden">
+
+  <!-- App Wrapper -->
+  <div id="app" class="flex h-screen overflow-hidden relative">
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
+
+    <!-- Responsive Mobile & Desktop Sidebar Container -->
+    <aside id="sidebar-container" class="fixed md:static inset-y-0 left-0 w-64 flex-shrink-0 border-r border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#16181D] flex flex-col transition-transform duration-300 z-40 -translate-x-full md:translate-x-0 shadow-2xl md:shadow-none"></aside>
+
+    <!-- Main Content Shell -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#F6F7FB] dark:bg-[#0B0B0F] relative max-w-full">
+      <!-- Navbar Container -->
+      <header id="navbar-container" class="h-16 border-b border-slate-200 dark:border-[#1E293B] bg-white/95 dark:bg-[#16181D]/95 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between px-3 md:px-6"></header>
+
+
+      <!-- Expiring Policies / Action Alert Banner (Dynamic) -->
+      <div id="banner-container"></div>
+
+      <!-- Scrollable Main View Container -->
+      <main id="main-view" class="flex-1 overflow-y-auto p-3 sm:p-5 md:p-8 custom-scrollbar space-y-6 md:space-y-8 relative min-w-0 max-w-full">
+        <!-- Dynamic module views -->
+      </main>
+
+      <!-- Global Audio Waveform & Voice Assistant Floating Drawer (Zia AI Style) -->
+      <div id="voice-assistant-overlay"></div>
+    </div>
+  </div>
+
+
+  <!-- Global Command Palette Modal (Ctrl+K) -->
+  <div id="search-modal-container"></div>
+
+  <!-- Global Modal Container -->
+  <div id="global-modal-container"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#C9A227" />
+
+  <!-- Core Scripts -->
+  <script type="module" src="./src/js/app.js?v=20260822_v999"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+
