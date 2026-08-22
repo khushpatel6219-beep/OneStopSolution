@@ -37,7 +37,6 @@ class AppController {
       localStorage.setItem('staros_theme', 'light');
     }
 
-
     store.subscribe(() => this.render());
     window.addEventListener('hashchange', () => this.handleRoute());
     voiceAssistant.onStateChange = () => this.updateVoiceUI();
@@ -50,8 +49,6 @@ class AppController {
         console.log(`⚡ Payment Reminder Engine auto-triggered ${triggered} notifications.`);
       }
     }, 1500);
-
-    this.handleRoute();
 
     // Global Keyboard Shortcuts (Ctrl + K)
     document.addEventListener('keydown', (e) => {
@@ -110,7 +107,6 @@ class AppController {
           this.openEditEmergencyModal(id);
           return;
         }
-
 
         // 4. Client Delete Button
         const deleteBtn = e.target.closest('[data-delete-client]');
@@ -248,7 +244,91 @@ class AppController {
       });
     }
 
+    this.handleRoute();
     console.log('🚀 StarOS Pro Business Suite initialized successfully.');
+  }
+
+  attachGlobalDelegation() {
+    if (this.hasAttachedGlobalDelegation) return;
+    this.hasAttachedGlobalDelegation = true;
+
+    document.addEventListener('click', (e) => {
+      // 1. Delete Client Button
+      const btnDeleteClient = e.target.closest('[data-delete-client]');
+      if (btnDeleteClient) {
+        const id = btnDeleteClient.getAttribute('data-delete-client');
+        const db = store.get();
+        const client = db.clients.find(c => c.id === id);
+        const name = client ? client.name : 'this client';
+        if (confirm(`Are you sure you want to delete ${name}?\n\nThis will move the client record and associated policies to the Recycle Bin.`)) {
+          store.deleteClient(id);
+          this.selectedClientId = null;
+          this.showToast(`🗑️ Client ${name} deleted & moved to Recycle Bin!`);
+          this.render();
+        }
+        return;
+      }
+
+      // 2. Edit Client Button
+      const btnEditClient = e.target.closest('[data-edit-client]');
+      if (btnEditClient) {
+        const id = btnEditClient.getAttribute('data-edit-client');
+        this.openEditClientModal(id);
+        return;
+      }
+
+      // 3. Edit Emergency Contact Button
+      const btnEditEmergency = e.target.closest('[data-edit-emergency]');
+      if (btnEditEmergency) {
+        const id = btnEditEmergency.getAttribute('data-edit-emergency');
+        this.openEditEmergencyModal(id);
+        return;
+      }
+
+      // 4. Upload Client Image / Photo Button
+      const btnUploadImg = e.target.closest('[data-upload-image]');
+      if (btnUploadImg) {
+        const id = btnUploadImg.getAttribute('data-upload-image');
+        this.openUploadClientImageModal(id);
+        return;
+      }
+
+      // 5. Delete Motor Policy
+      const btnDeleteMotor = e.target.closest('[data-delete-motor]');
+      if (btnDeleteMotor) {
+        const id = btnDeleteMotor.getAttribute('data-delete-motor');
+        if (confirm("Are you sure you want to delete this Motor policy?")) {
+          store.deleteMotorPolicy(id);
+          this.showToast("🗑️ Motor policy deleted!");
+          this.render();
+        }
+        return;
+      }
+
+      // 6. Delete Health Policy
+      const btnDeleteHealth = e.target.closest('[data-delete-health]');
+      if (btnDeleteHealth) {
+        const id = btnDeleteHealth.getAttribute('data-delete-health');
+        if (confirm("Are you sure you want to delete this Health policy?")) {
+          store.deleteHealthPolicy(id);
+          this.showToast("🗑️ Health policy deleted!");
+          this.render();
+        }
+        return;
+      }
+
+      // 7. Delete Life Policy
+      const btnDeleteLife = e.target.closest('[data-delete-life]');
+      if (btnDeleteLife) {
+        const id = btnDeleteLife.getAttribute('data-delete-life');
+        if (confirm("Are you sure you want to delete this Life policy?")) {
+          store.deleteLifePolicy(id);
+          this.showToast("🗑️ Life policy deleted!");
+          this.render();
+        }
+        return;
+      }
+    });
   }
 
   handleRoute() {
