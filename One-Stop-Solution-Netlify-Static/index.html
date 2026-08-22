@@ -49,9 +49,39 @@
 
   <!-- StarOS Custom CSS -->
   <link rel="stylesheet" href="./src/css/styles.css" />
+  <style>
+    :root {
+      --primary-gold: #C9A227;
+      --bg-dark: #0B0B0F;
+      --card-dark: #16181D;
+      --border-dark: #1E293B;
+    }
+    html.dark body, html.dark #app, html.dark #main-view {
+      background-color: #0B0B0F !important;
+      color: #F8FAFC !important;
+    }
+    html.light body, html.light #app, html.light #main-view {
+      background-color: #F6F7FB !important;
+      color: #111827 !important;
+    }
+    html.light .zoho-card {
+      background-color: #FFFFFF !important;
+      border: 1px solid #E5E7EB !important;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+    }
+    html.dark .zoho-card {
+      background-color: #16181D !important;
+      border: 1px solid #1E293B !important;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5) !important;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(11, 11, 15, 0.6); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(30, 41, 59, 0.9); border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C9A227; }
+  </style>
 
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-[#141A26] dark:text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950 font-sans min-h-screen overflow-x-hidden">
+<body class="bg-[#F6F7FB] text-[#111827] dark:bg-[#0B0B0F] dark:text-[#F8FAFC] antialiased selection:bg-amber-500 selection:text-slate-950 font-sans min-h-screen overflow-x-hidden">
 
   <!-- App Wrapper -->
   <div id="app" class="flex h-screen overflow-hidden relative">
@@ -59,12 +89,12 @@
     <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
 
     <!-- Responsive Mobile & Desktop Sidebar Container -->
-    <aside id="sidebar-container" class="fixed md:static inset-y-0 left-0 w-64 flex-shrink-0 border-r border-slate-200 dark:border-zoho-border bg-white dark:bg-[#181E2B] flex flex-col transition-transform duration-300 z-40 -translate-x-full md:translate-x-0 shadow-2xl md:shadow-none"></aside>
+    <aside id="sidebar-container" class="fixed md:static inset-y-0 left-0 w-64 flex-shrink-0 border-r border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#16181D] flex flex-col transition-transform duration-300 z-40 -translate-x-full md:translate-x-0 shadow-2xl md:shadow-none"></aside>
 
     <!-- Main Content Shell -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-50 dark:bg-[#141A26] relative max-w-full">
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#F6F7FB] dark:bg-[#0B0B0F] relative max-w-full">
       <!-- Navbar Container -->
-      <header id="navbar-container" class="h-16 border-b border-slate-200 dark:border-zoho-border bg-white/95 dark:bg-[#181E2B]/95 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between px-3 md:px-6"></header>
+      <header id="navbar-container" class="h-16 border-b border-slate-200 dark:border-[#1E293B] bg-white/95 dark:bg-[#16181D]/95 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between px-3 md:px-6"></header>
 
 
       <!-- Expiring Policies / Action Alert Banner (Dynamic) -->
@@ -92,10 +122,10 @@
 
   <!-- PWA Manifest & Icons -->
   <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#F59E0B" />
+  <meta name="theme-color" content="#C9A227" />
 
   <!-- Core Scripts -->
-  <script type="module" src="./src/js/app.js?v=20260822_v200"></script>
+  <script type="module" src="./src/js/app.js?v=20260822_v999"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(registrations => {
