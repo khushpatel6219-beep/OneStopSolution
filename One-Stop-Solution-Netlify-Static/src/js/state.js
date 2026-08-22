@@ -41,40 +41,48 @@ class StateStore {
 
   async initServerSync() {
     if (typeof window === 'undefined' || !window.fetch) return;
+
+    // 1. Initial Central Cloud Sync Fetch
     try {
-      const res = await fetch('/api/db');
-      if (res.ok) {
+      const res = await fetch('https://api.jsonbin.io/v3/b/66b5e526e41b4d34e41f712a/latest', {
+        headers: { 'X-Bin-Meta': 'false' }
+      }).catch(() => null);
+
+      if (res && res.ok) {
         const remoteData = await res.json();
-        if (remoteData && typeof remoteData === 'object' && Array.isArray(remoteData.clients)) {
-          this.data = { ...this.data, ...remoteData };
+        if (remoteData && typeof remoteData === 'object' && (Array.isArray(remoteData.clients) || remoteData.isCleared)) {
+          this.data = { ...seedData, ...remoteData };
           this.saveLocalOnly();
           this.notify();
+          console.log('☁️ Central Cloud State loaded cleanly across devices.');
         }
       }
     } catch (err) {
-      console.warn('Initial server DB sync warning:', err.message);
+      console.warn('Central cloud sync fetch info:', err.message);
     }
 
-    // Multi-Device Real-Time Sync Poller (every 3 seconds)
+    // 2. Multi-Device Real-Time Poller (every 4 seconds)
     setInterval(async () => {
       try {
-        const res = await fetch('/api/db');
-        if (res.ok) {
+        const res = await fetch('https://api.jsonbin.io/v3/b/66b5e526e41b4d34e41f712a/latest', {
+          headers: { 'X-Bin-Meta': 'false' }
+        }).catch(() => null);
+
+        if (res && res.ok) {
           const remoteData = await res.json();
-          if (remoteData && typeof remoteData === 'object' && Array.isArray(remoteData.clients)) {
+          if (remoteData && typeof remoteData === 'object' && (Array.isArray(remoteData.clients) || remoteData.isCleared)) {
             const remoteStr = JSON.stringify(remoteData);
             const localStr = JSON.stringify(this.data);
             if (remoteStr !== localStr) {
               this.data = remoteData;
               this.saveLocalOnly();
               this.notify();
+              console.log('🔄 Central Cloud State updated from remote device.');
             }
           }
         }
-      } catch (e) {
-        // Silent sync poller
-      }
-    }, 3000);
+      } catch (e) {}
+    }, 4000);
   }
 
   loadState() {
@@ -172,11 +180,14 @@ class StateStore {
     this.saveLocalOnly();
     if (typeof window !== 'undefined' && window.fetch) {
       try {
-        await fetch('/api/db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        await fetch('https://api.jsonbin.io/v3/b/66b5e526e41b4d34e41f712a', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Bin-Meta': 'false'
+          },
           body: JSON.stringify(this.data)
-        });
+        }).catch(() => {});
       } catch (err) {
         console.warn('Backend DB sync post warning:', err.message);
       }
