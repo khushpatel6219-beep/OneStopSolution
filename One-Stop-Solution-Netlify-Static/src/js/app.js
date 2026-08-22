@@ -41,7 +41,7 @@ class AppController {
     store.subscribe(() => this.render());
     window.addEventListener('hashchange', () => this.handleRoute());
     voiceAssistant.onStateChange = () => this.updateVoiceUI();
-
+    this.attachGlobalDelegation();
 
     // Run Automatic Payment Reminder Engine Check on Startup
     setTimeout(() => {
@@ -49,7 +49,7 @@ class AppController {
       if (triggered > 0) {
         console.log(`⚡ Payment Reminder Engine auto-triggered ${triggered} notifications.`);
       }
-    }, 2000);
+    }, 1500);
 
     this.handleRoute();
 
@@ -116,11 +116,14 @@ class AppController {
         const deleteBtn = e.target.closest('[data-delete-client]');
         if (deleteBtn) {
           const id = deleteBtn.getAttribute('data-delete-client');
-          if (confirm('Are you sure you want to delete this client record?')) {
-            if (store.deleteClient(id)) {
-              this.showToast('Client record deleted.');
-              this.render();
-            }
+          const db = store.get();
+          const clientObj = db.clients.find(c => c.id === id);
+          const name = clientObj ? clientObj.name : 'this client';
+          if (confirm(`Are you sure you want to delete ${name}?\n\nThis will move the client record and associated policies to the Recycle Bin.`)) {
+            store.deleteClient(id);
+            this.selectedClientId = null;
+            this.showToast(`🗑️ Client ${name} deleted & moved to Recycle Bin!`);
+            this.render();
           }
           return;
         }
@@ -639,6 +642,88 @@ class AppController {
     const btnMobileMenu = document.getElementById('btn-toggle-mobile-menu');
     const sidebarEl = document.getElementById('sidebar-container');
     const backdropEl = document.getElementById('sidebar-backdrop');
+
+    // Global Event Delegation for Delete Client & Dynamic Buttons
+    if (!this.hasAttachedGlobalDelegation) {
+      this.hasAttachedGlobalDelegation = true;
+      document.addEventListener('click', (e) => {
+        const btnDeleteClient = e.target.closest('[data-delete-client]');
+        if (btnDeleteClient) {
+          const id = btnDeleteClient.getAttribute('data-delete-client');
+          const db = store.get();
+          const client = db.clients.find(c => c.id === id);
+          const name = client ? client.name : 'this client';
+          if (confirm(`Are you sure you want to delete ${name}?\n\nThis will move the client record and associated policies to the Recycle Bin.`)) {
+            store.deleteClient(id);
+            this.selectedClientId = null;
+            this.showToast(`🗑️ Client ${name} deleted & moved to Recycle Bin!`);
+            this.render();
+          }
+          return;
+        }
+
+        const btnEditClient = e.target.closest('[data-edit-client]');
+        if (btnEditClient) {
+          const id = btnEditClient.getAttribute('data-edit-client');
+          this.openEditClientModal(id);
+          return;
+        }
+
+        const btnEditFamily = e.target.closest('[data-edit-family]');
+        if (btnEditFamily) {
+          const id = btnEditFamily.getAttribute('data-edit-family');
+          this.openEditFamilyModal(id);
+          return;
+        }
+
+        const btnEditEmergency = e.target.closest('[data-edit-emergency]');
+        if (btnEditEmergency) {
+          const id = btnEditEmergency.getAttribute('data-edit-emergency');
+          this.openEditEmergencyModal(id);
+          return;
+        }
+
+        const btnUploadImg = e.target.closest('[data-upload-image]');
+        if (btnUploadImg) {
+          const id = btnUploadImg.getAttribute('data-upload-image');
+          this.openUploadClientImageModal(id);
+          return;
+        }
+
+        const btnDeleteMotor = e.target.closest('[data-delete-motor]');
+        if (btnDeleteMotor) {
+          const id = btnDeleteMotor.getAttribute('data-delete-motor');
+          if (confirm("Are you sure you want to delete this Motor policy?")) {
+            store.deleteMotorPolicy(id);
+            this.showToast("🗑️ Motor policy deleted!");
+            this.render();
+          }
+          return;
+        }
+
+        const btnDeleteHealth = e.target.closest('[data-delete-health]');
+        if (btnDeleteHealth) {
+          const id = btnDeleteHealth.getAttribute('data-delete-health');
+          if (confirm("Are you sure you want to delete this Health policy?")) {
+            store.deleteHealthPolicy(id);
+            this.showToast("🗑️ Health policy deleted!");
+            this.render();
+          }
+          return;
+        }
+
+        const btnDeleteLife = e.target.closest('[data-delete-life]');
+        if (btnDeleteLife) {
+          const id = btnDeleteLife.getAttribute('data-delete-life');
+          if (confirm("Are you sure you want to delete this Life policy?")) {
+            store.deleteLifePolicy(id);
+            this.showToast("🗑️ Life policy deleted!");
+            this.render();
+          }
+          return;
+        }
+      });
+    }
 
     if (btnMobileMenu && sidebarEl) {
       btnMobileMenu.onclick = (e) => {
